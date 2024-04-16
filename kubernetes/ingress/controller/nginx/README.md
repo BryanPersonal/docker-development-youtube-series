@@ -120,6 +120,12 @@ ingress-nginx-controller-admission   ClusterIP      10.96.125.210   <none>      
 
 For testing purposes, we will simply setup `port-forward`ing </br>
 If you are running in the cloud, you will get a real IP address. </br>
+Why? Coz you will need forward traffic from public cloud's load balancer into Nginx Ingress Controller nodes in K8S cluster</br> 
+
+Side note: certicates or keys are stored in secrets. </br>
+```
+kubectl create secret tls my-tls-secret --cert=path/to/cert.crt --key=path/to/key.key
+```
 
 ```
 kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 443
@@ -401,3 +407,23 @@ kubectl apply -f ./kubernetes/ingress/controller/nginx/manifests/nginx-ingress.$
 ```
 
 kubectl -n ingress-nginx logs -l app.kubernetes.io/instance=ingress-nginx
+
+
+
+```text
+在公有云上将流量从公有 IP 地址转发到运行在 Kubernetes 集群中的 Nginx Ingress Controller，通常可以通过以下步骤来实现：
+
+创建负载均衡器（Load Balancer）：在公有云平台上创建一个负载均衡器，并将其配置为使用你的公有 IP 地址。在云平台的负载均衡器服务中，通常会提供创建负载均衡器的选项，你可以在这里创建一个新的负载均衡器，并分配公有 IP 地址。
+
+配置负载均衡器的目标组（Target Group）或后端池（Backend Pool）：在负载均衡器中配置一个目标组或后端池，将流量转发到你的 Kubernetes 集群中运行的 Nginx Ingress Controller 的节点或 Pod。你需要指定目标组或后端池中的节点或 Pod 的 IP 地址和端口。
+
+配置负载均衡器的转发规则：在负载均衡器中配置转发规则，将来自公有 IP 地址的流量转发到目标组或后端池中。
+
+设置健康检查（Health Check）：在目标组或后端池中配置健康检查，以确保负载均衡器只将流量转发到健康的节点或 Pod。
+
+更新防火墙规则：如果有必要，你可能需要更新公有云平台的防火墙规则，允许来自公网的流量访问负载均衡器的公有 IP 地址和端口。
+
+配置 DNS 解析：将你的域名解析到公有 IP 地址，以便用户可以通过域名访问你的服务。
+
+完成以上步骤后，来自公网的流量将被转发到你的 Kubernetes 集群中运行的 Nginx Ingress Controller，然后由 Ingress Controller 根据 Ingress 资源的配置将流量路由到对应的后端服务。
+```
